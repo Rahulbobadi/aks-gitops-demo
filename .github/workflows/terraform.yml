@@ -6,7 +6,8 @@ on:
       - main
 
 jobs:
-  terraform:
+
+  bootstrap-backend:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,17 +23,35 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Verify Azure Login
-      run: az account show
-
-    - name: Terraform Init
+    - name: Terraform Init Backend
+      working-directory: terraform/backend
       run: terraform init
 
-    - name: Terraform Validate
-      run: terraform validate
+    - name: Terraform Apply Backend
+      working-directory: terraform/backend
+      run: terraform apply -auto-approve
 
-    - name: Terraform Plan
-      run: terraform plan
+  deploy-infra:
+    needs: bootstrap-backend
+    runs-on: ubuntu-latest
 
-    - name: Terraform Apply
+    steps:
+
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Terraform Init Infra
+      working-directory: terraform/infra
+      run: terraform init -upgrade
+
+    - name: Terraform Apply Infra
+      working-directory: terraform/infra
       run: terraform apply -auto-approve
