@@ -1,10 +1,10 @@
 resource "azurerm_resource_group" "rg" {
-  name     = "aks-gitops-rg3"
+  name     = "aks-gitops-rg1"
   location = "East US"
 }
 
 resource "azurerm_container_registry" "acr" {
-  name                = "aksgitopsacr124"
+  name                = "aksgitopsacr125"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   sku                 = "Basic"
@@ -20,7 +20,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   default_node_pool {
     name       = "default"
     node_count = 1
-    vm_size    = "Standard_B2s_V2"
+    vm_size    = "Standard_D2s_V3"
   }
 
   identity {
