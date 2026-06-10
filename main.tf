@@ -1,7 +1,7 @@
-#resource "azurerm_resource_group" "rg" {
-#  name     = "aks-gitops-rg"
-#  location = "Central India"
-#}
+resource "azurerm_resource_group" "rg" {
+  name     = "aks-gitops-rg1"
+  location = "Central India"
+}
 
 resource "azurerm_container_registry" "acr" {
   name                = "aksgitopsacr12345"
