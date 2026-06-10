@@ -1,0 +1,42 @@
+name: Install ArgoCD
+
+on:
+  workflow_dispatch:
+
+jobs:
+  argocd-install:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v4
+
+    - name: Get AKS Credentials
+      run: |
+        az aks get-credentials \
+          --resource-group aks-gitops-rg3 \
+          --name aks-gitops-cluster \
+          --overwrite-existing
+
+    - name: Create ArgoCD Namespace
+      run: kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Install ArgoCD
+      run: |
+        kubectl apply -n argocd \
+        -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+    - name: Expose ArgoCD
+      run: |
+        kubectl patch svc argocd-server \
+        -n argocd \
+        -p '{"spec": {"type": "LoadBalancer"}}'

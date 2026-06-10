@@ -1,0 +1,42 @@
+name: Install Ingress Controller
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ingress-install:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v4
+
+    - name: Get AKS Credentials
+      run: |
+        az aks get-credentials \
+          --resource-group aks-gitops-rg3 \
+          --name aks-gitops-cluster \
+          --overwrite-existing
+
+    - name: Install Helm
+      uses: azure/setup-helm@v4
+
+    - name: Add Ingress Helm Repo
+      run: |
+        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+        helm repo update
+
+    - name: Install Ingress NGINX
+      run: |
+        helm install ingress-nginx ingress-nginx/ingress-nginx \
+        --namespace ingress-nginx \
+        --create-namespace
