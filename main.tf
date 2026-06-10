@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "rg" {
   name     = "aks-gitops-rg2"
-  location = "Central India"
+  location = "East US"
 }
 
 resource "azurerm_container_registry" "acr" {
